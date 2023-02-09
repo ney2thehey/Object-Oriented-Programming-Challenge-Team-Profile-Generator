@@ -1,111 +1,138 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 const path = require("path");
+const Manager = require("./lib/manager")
+const Engineer = require("./lib/engineer")
+const Intern = require("./lib/intern")
+const htmlGenerator = require("./dist/htmlGenerator")
 
-function renderLicenseBadge (license) {
-  if (license !== "None"){
- return `![Github License](https://img.shields.io/badge/license-${license}-blue.svg)`
-  }
-  return "";
+
+const teamArray =[];
+//function runApp(){
+const managerQuestion = [{
+  type: "input",
+  name: "name",
+  message: "What is your Manager name?"
+},
+{
+  type: "input",
+  name: "id",
+  message: "What is your Manager ID?"
+
+},
+{
+  type: "input",
+  name: "email",
+  message: "What is the managers email?"
+},
+{
+  type: "input",
+  name: "officeNumber",
+  message: "What is the managers officeNumber?"
+},
+]
+
+const engineerQuestion = [{
+  type: "input",
+  name: "name",
+  message: "What is your Engineer name?"
+},
+{
+  type: "input",
+  name: "id",
+  message: "What is your Engineer ID?"
+
+},
+{
+  type: "input",
+  name: "email",
+  message: "What is the Engineer email?"
+},
+{
+  type: "input",
+  name: "github",
+  message: "What is the Engineer github?"
+},
+]
+
+const InternQuestion = [{
+  type: "input",
+  name: "name",
+  message: "What is your Intern's name?"
+},
+{
+  type: "input",
+  name: "id",
+  message: "What is your Intern's ID?"
+
+},
+{
+  type: "input",
+  name: "email",
+  message: "What is the Intern's email?"
+},
+{
+  type: "input",
+  name: "school",
+  message: "What is the Intern's school?"
+},
+]
+
+function init(){
+  inquirer.prompt(managerQuestion).then(response=> {
+    const manager = new Manager(response.name,response.id, response.email, response.officeNumber);
+    teamArray.push(manager);
+    menu();
+  })
+}
+init();
+
+function addEngineer(){
+  inquirer.prompt(engineerQuestion).then(response=>{
+    const engineer = new Engineer(response.name,response.id, response.email, response.github);
+    teamArray.push(engineer);
+    menu();
+  })
 }
 
-const generateHTML = ({ github, email, title, description, license, installation, test, usage, contributing }) =>{ 
-  return `
-  # ${title}
-
-  ## Description
-
-  ${description}
-
-
-  ## Table of Contents 
-  - [Description](#description)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Test](#test)
-  - [Additional links](#additional-links)
-
-
-  ## Installation
-  ${installation}
-
-  ## Usage
-  ${usage}
-
-
-  ## Liscense 
-  ${renderLicenseBadge(license)}
-
-  ## Contributing
-  ${contributing}
-
-  ## Test
-  ${test}
-
-  --
-  ## Additional Links
-  * Github: [${github}](https://github.com/${github})
-  * Email:${email}
-  `
+function addIntern(){
+  inquirer.prompt(InternQuestion).then(response=>{
+    const intern = new Intern (response.name,response.id, response.email, response.school);
+    teamArray.push(intern);
+    menu();
+  })
 }
-  
-// Description, Table of Contents, Installation, Usage, License(options), Contributing, Tests, and Questions
-inquirer
-  .prompt([
-    {
-      type: 'input',
-      name: 'github',
-      message: 'What is your GitHub username?',
-    },
-    {
-      type: 'input',
-      name: 'email',
-      message: 'What is your email address?',
-    },
-    {
-      type: 'input',
-      name: 'title',
-      message: "What is your project's name?",
-    },
-    {
-      type: 'input',
-      name: 'description',
-      message: 'Please write a short description of your project',
-    },
-    {
-      type: 'list',
-      name: 'license',
-      message: 'What kind of license should your project have?',
-      choices: ['MIT', 'APACHE2.0', 'GPL3.0', 'BSD3', 'None'],
-    },
-    {
-      type: 'input',
-      name: 'installation',
-      message: 'What command should be run to install dependencies?',
-      default: 'npm i',
-    },
-    {
-      type: 'input',
-      name: 'test',
-      message: 'What command should be run to run tests?',
-      default: 'npm test',
-    },
-    {
-      type: 'input',
-      name: 'usage',
-      message: 'What does the user need to know about using the repo?',
-    },
-    {
-      type: 'input',
-      name: 'contributing',
-      message: 'What does the user need to know about contributing to the repo?',
-    },
-  ])
-  .then((answers) => {
-    const htmlPageContent = generateHTML(answers);    //opens a promise object 
-console.log(answers);
 
-    fs.writeFile('readme.md', htmlPageContent, (err) =>
-      err ? console.log(err) : console.log('Successfully created index.html!')
-    );
-  });
+function newTeam(){
+  console.log(teamArray);
+}
+function menu(){
+  inquirer.prompt([{
+    type: "list",
+    name: "Selection",
+    message: "Do you want to add a new Employee?",
+    choices: ["Engineer", "Intern", "Quit"]
+  }]).then(response=>{
+    if (response.Selection === "Engineer"){
+      addEngineer();
+    } else if(response.Selection === "Intern"){
+      addIntern();
+
+    } else {
+      newTeam();
+    }
+  })
+}
+
+ function htmlBuilder () {
+  console.log("Team created!")
+
+fs.writeFileSync("./dist/team.html", htmlGenerator(teamArray),)
+
+
+};
+
+//Menu();
+
+
+//}
